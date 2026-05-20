@@ -65,7 +65,9 @@ Instead of updating these 196 large matrices directly, LoRA adds two small matri
 alongside each one:
 
 Original:  4096 × 4096  = 16M params  ← FROZEN
+
 LoRA A:    4096 × 8     = 32K params  ← trainable
+
 LoRA B:    8    × 4096  = 32K params  ← trainable
 
 The total trainable parameters are:
