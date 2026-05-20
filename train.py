@@ -8,16 +8,6 @@ from transformers import (
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from trl import SFTTrainer, SFTConfig
 
-# torch — PyTorch, the foundation everything runs on
-# load_dataset — pulls the Alpaca python dataset from HuggingFace
-# AutoModelForCausalLM — loads LLaMA as a text generation model
-# AutoTokenizer — converts text → tokens the model understands
-# BitsAndBytesConfig — configures 4-bit quantization (the "Q" in QLoRA)
-# LoraConfig — defines our LoRA adapter settings
-# get_peft_model — wraps the base model with LoRA adapters
-# prepare_model_for_kbit_training — prepares the quantized model for training
-# SFTTrainer — the high-level trainer that handles the training loop
-
 # Model and dataset
 MODEL_ID = "meta-llama/Llama-3.2-3B"
 DATASET_ID = "iamtarun/python_code_instructions_18k_alpaca"
@@ -99,7 +89,6 @@ sft_config = SFTConfig(
     logging_steps=10,
     save_steps=50,
     max_length=MAX_SEQ_LENGTH,
-    dataset_text_field="text",
 )
 
 # Initialize trainer

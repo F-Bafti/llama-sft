@@ -10,8 +10,6 @@ This project demonstrates Supervised Fine-Tuning (SFT) of Meta's LLaMA 3.2-3B mo
 
 ## Technique: QLoRA
 
-## Technique: QLoRA
-
 Full fine-tuning of a 3B parameter model requires ~48GB+ VRAM. To understand why,
 during training the GPU must store 4 things simultaneously for every parameter:
 
@@ -27,7 +25,7 @@ during training the GPU must store 4 things simultaneously for every parameter:
 We use the Adam optimizer which tracks two extra values per parameter (m and v),
 both in float32 (4 bytes each): 3B × 4 bytes × 2 = 24GB just for optimizer states alone.
 
-QLoLA makes this feasible on a single consumer GPU by combining two techniques:
+QLoRA makes this feasible on a single consumer GPU by combining two techniques:
 
 - **4-bit Quantization (bitsandbytes):** Compresses model weights from 16-bit to 4-bit,
   reducing VRAM from ~6GB to ~2GB. The weights are not lost — all 3 billion parameters
@@ -51,6 +49,35 @@ The result:
 
 In a datacenter setting with NVIDIA A100/H100 GPUs (80GB VRAM), full fine-tuning or 
 16-bit training with DeepSpeed ZeRO-3 would be preferred for higher quality results.
+
+### Understanding LoRA Parameter Count
+
+LLaMA 3.2-3B consists of 28 identical layers, each containing 7 weight matrices:
+
+**Attention block:** q_proj, k_proj, v_proj, o_proj
+**MLP block:** gate_proj, up_proj, down_proj
+
+That's 7 × 28 = **196 weight matrices** in total. Each matrix has a hidden dimension
+of 4096, so each is of size (4096 × 4096) = 16M parameters. This gives us roughly
+16M × 7 × 28 ≈ **3.1B parameters** for the whole model.
+
+Instead of updating these 196 large matrices directly, LoRA adds two small matrices
+alongside each one:
+
+Original:  4096 × 4096  = 16M params  ← FROZEN
+LoRA A:    4096 × 8     = 32K params  ← trainable
+LoRA B:    8    × 4096  = 32K params  ← trainable
+
+The total trainable parameters are:
+2 × 4096 × 8 × 196 = ~12.8M params = 0.37% of 3.2B
+
+During the forward pass, both the original and LoRA paths run simultaneously,
+and their outputs are added together. During backpropagation, gradients flow
+through both paths but only A and B get updated — the original matrix W is frozen.
+
+At the start of training, B is initialized to zeros so the model behaves exactly
+like the original LLaMA — training starts from a stable point and gradually
+learns the delta.
 
 ## Dataset
 - **Name:** `iamtarun/python_code_instructions_18k_alpaca`
