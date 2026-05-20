@@ -9,12 +9,29 @@ This project demonstrates Supervised Fine-Tuning (SFT) of Meta's LLaMA 3.2-3B mo
 - **Driver:** 535.274.02
 
 ## Technique: QLoRA
-Full fine-tuning of a 3B parameter model requires ~48GB+ VRAM. QLoRA makes this feasible on a single consumer GPU by combining two techniques:
 
-- **4-bit Quantization (bitsandbytes):** Compresses model weights from 16-bit to 4-bit, reducing VRAM from ~6GB to ~2GB
-- **LoRA (Low-Rank Adaptation):** Instead of updating all 3B parameters, small trainable adapter matrices are added to attention and MLP layers
+Full fine-tuning of a 3B parameter model requires ~48GB+ VRAM. QLoRA makes this 
+feasible on a single consumer GPU by combining two techniques:
 
-In a datacenter setting with NVIDIA A100/H100 GPUs (80GB VRAM), full fine-tuning or 16-bit training with DeepSpeed ZeRO-3 would be preferred for higher quality results.
+- **4-bit Quantization (bitsandbytes):** Compresses model weights from 16-bit to 4-bit,
+  reducing VRAM from ~6GB to ~2GB. The weights are not lost — all 3 billion parameters
+  are still there, just compressed into a smaller representation (similar to JPEG vs RAW).
+  Each weight goes from 16 possible bits of precision down to 4 bits (16 possible values).
+  Neural networks are surprisingly robust to this precision loss because the relative
+  relationships between weights matter more than their exact values.
+
+- **LoRA (Low-Rank Adaptation):** Instead of updating all 3B parameters, small trainable
+  adapter matrices are added to the attention and MLP layers. Only 12M parameters (0.37%)
+  are actually trained. These adapters are kept in full precision (bfloat16) intentionally —
+  because gradient updates during training are extremely small numbers that would vanish
+  completely if rounded to 4-bit. The base model stays frozen in 4-bit while the adapters
+  capture the fine-tuning signal accurately.
+
+The result: the base model uses ~2GB VRAM in 4-bit, the LoRA adapters add only ~50MB,
+and training fits comfortably within 12GB VRAM.
+
+In a datacenter setting with NVIDIA A100/H100 GPUs (80GB VRAM), full fine-tuning or 
+16-bit training with DeepSpeed ZeRO-3 would be preferred for higher quality results.
 
 ## Dataset
 - **Name:** `iamtarun/python_code_instructions_18k_alpaca`
