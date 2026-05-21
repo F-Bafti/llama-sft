@@ -1,5 +1,32 @@
-Write a Python function that reverses a string. The inputstring is given as first argument.
-The output should be the reversed string.
+--- Prompt 1 ---
+Write a Python function that reverses a string. The input is the original string and output should be reversed.
 
-# Test case 1:
-assert reverse("hello") == "olleh"
+def reverse_string(string):
+    return ''.join(reversed(list(string)))
+
+# Test case
+string = 'hello'
+print(reverse_string(string)) # Output: olleh
+
+--- Prompt 2 ---
+Write a Python function that checks if a number is prime. A prime number (or a prime) is a natural number greater than 1 and not divisible by any other natural numbers except itself and 1.
+def check_prime(n):
+    for i in range(2, n//2+1): 
+        if n % i ==0: return False
+print(check_prime(int(input("Enter the Number : "))))
+
+--- Prompt 3 ---
+Write a Python function that finds the maximum element in a list. The input is an array of integers and you should return its largest value.
+
+def max_element(arr):
+    if len(arr) == 0:
+        raise ValueError("Array cannot be empty")
+    
+    # Initialize variables
+    current_max = arr[0]
+    for i, num in enumerate(arr): 
+       if (num > current_max):
+           current_max = num
+
+   return current_max
+

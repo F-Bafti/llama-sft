@@ -27,30 +27,35 @@ print("Loading LoRA adapters...")
 model = PeftModel.from_pretrained(model, ADAPTER_DIR)
 model.eval()
 
-# Test prompt
-prompt = """### Instruction:
-Write a Python function that reverses a string.
+prompts = [
+    "Write a Python function that reverses a string.",
+    "Write a Python function that checks if a number is prime.",
+    "Write a Python function that finds the maximum element in a list."
+]
 
-### Input:
+results = []
+for i, prompt in enumerate(prompts):
+    print(f"\n--- Prompt {i+1}: {prompt} ---")
+    
+    inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
+    
+    with torch.no_grad():
+        outputs = model.generate(
+            **inputs,
+            max_new_tokens=200,
+            do_sample=False,
+            repetition_penalty=1.3
+        )
+    
+    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    print(response)
+    results.append(response)
 
-### Response:
-"""
+# Save all baseline outputs
+with open("baseline_output.txt", "w") as f:
+    for i, result in enumerate(results):
+        f.write(f"--- Prompt {i+1} ---\n")
+        f.write(result)
+        f.write("\n\n")
 
-inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
-
-with torch.no_grad():
-    outputs = model.generate(
-        **inputs,
-        max_new_tokens=200,
-        do_sample=False,
-        repetition_penalty=1.3
-    )
-
-response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-print("\n--- Fine-tuned Model Output ---")
-print(response)
-
-# Save for comparison
-with open("finetuned_output.txt", "w") as f:
-    f.write(response)
 print("\nOutput saved to finetuned_output.txt")

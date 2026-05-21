@@ -11,22 +11,35 @@ model = AutoModelForCausalLM.from_pretrained(
     device_map="auto"           # automatically puts model on GPU
 )
 
-# Test prompt
-prompt = "Write a Python function that reverses a string."
+prompts = [
+    "Write a Python function that reverses a string.",
+    "Write a Python function that checks if a number is prime.",
+    "Write a Python function that finds the maximum element in a list."
+]
 
-inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
+results = []
+for i, prompt in enumerate(prompts):
+    print(f"\n--- Prompt {i+1}: {prompt} ---")
+    
+    inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
+    
+    with torch.no_grad():
+        outputs = model.generate(
+            **inputs,
+            max_new_tokens=200,
+            do_sample=False,
+            repetition_penalty=1.3
+        )
+    
+    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    print(response)
+    results.append(response)
 
-outputs = model.generate(
-    **inputs,
-    max_new_tokens=200,
-    do_sample=False,        # greedy decoding — more deterministic
-    repetition_penalty=1.3  # penalizes repeating the same tokens
-)
-
-print(tokenizer.decode(outputs[0], skip_special_tokens=True))
-
-# Save baseline output
+# Save all baseline outputs
 with open("baseline_output.txt", "w") as f:
-    f.write(tokenizer.decode(outputs[0], skip_special_tokens=True))
+    for i, result in enumerate(results):
+        f.write(f"--- Prompt {i+1} ---\n")
+        f.write(result)
+        f.write("\n\n")
 
-print("\nBaseline output saved to baseline_output.txt")
+print("\nBaseline outputs saved to baseline_output.txt")

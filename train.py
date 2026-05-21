@@ -98,6 +98,14 @@ trainer = SFTTrainer(
     args=sft_config,
 )
 
+# Print some examples
+print("\n--- Dataset Examples ---")
+for i in range(3):
+    print(f"\nExample {i+1}:")
+    print(f"PROMPT:\n{dataset[i]['prompt']}")
+    print(f"COMPLETION:\n{dataset[i]['completion']}")
+    print("-" * 50)
+
 # Start training
 print("Starting training...")
 trainer.train()
