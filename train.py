@@ -24,7 +24,7 @@ MAX_SEQ_LENGTH = 512   # Max tokens per sample
 BATCH_SIZE = 2         # Small batch to fit in 12GB VRAM
 GRAD_ACCUM = 4         # Simulates batch size of 8 (2x4)
 LEARNING_RATE = 2e-4   # Standard for LoRA fine-tuning
-NUM_STEPS = 1000       # Small run for demo purposes
+NUM_STEPS = 500       # Small run for demo purposes
 OUTPUT_DIR = "./llama-sft-output"
 
 # 4-bit quantization config
@@ -49,6 +49,7 @@ model = AutoModelForCausalLM.from_pretrained(
 
 # Prepare model for training
 model = prepare_model_for_kbit_training(model)
+model.gradient_checkpointing_enable()  # ← add this
 
 # LoRA config
 lora_config = LoraConfig(
@@ -82,6 +83,7 @@ print(f"Dataset size: {len(dataset)} samples")
 
 # Training config
 sft_config = SFTConfig(
+    gradient_checkpointing=True,  
     output_dir=OUTPUT_DIR,
     max_steps=NUM_STEPS,
     per_device_train_batch_size=BATCH_SIZE,

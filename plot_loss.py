@@ -21,6 +21,8 @@ ax1.set_title('Training Loss', fontsize=14)
 ax1.set_xlabel('Steps')
 ax1.set_ylabel('Loss')
 ax1.grid(True, alpha=0.3)
+ax1.set_ylim(0.0, 1.0)
+
 
 # Accuracy plot
 ax2.plot(steps, accuracy, marker='o', color='seagreen', linewidth=2, markersize=5)
@@ -28,6 +30,7 @@ ax2.set_title('Mean Token Accuracy', fontsize=14)
 ax2.set_xlabel('Steps')
 ax2.set_ylabel('Accuracy')
 ax2.grid(True, alpha=0.3)
+ax2.set_ylim(0.0, 1.0)
 
 plt.suptitle('LLaMA 3.2-3B QLoRA Fine-tuning — Training Metrics', fontsize=15, fontweight='bold')
 plt.tight_layout()
