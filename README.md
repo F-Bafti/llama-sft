@@ -1,7 +1,7 @@
-# LLaMA 3.2-3B Supervised Fine-Tuning (SFT) on Python Code Instructions
+# LLaMA 3.2-3B Parameter-Efficient Fine-Tuning (PEFT) on Python Code Instructions
 
 ## Overview
-This project demonstrates Supervised Fine-Tuning (SFT) of Meta's LLaMA 3.2-3B model on a Python code instruction dataset using QLoRA (Quantized Low-Rank Adaptation). The goal is to improve the model's ability to follow coding instructions and generate correct Python code.
+This project demonstrates Parameter-Efficient Fine-Tuning (PEFT) of Meta's LLaMA 3.2-3B model on a Python code instruction dataset using QLoRA (Quantized Low-Rank Adaptation). The technique keeps the base model frozen and trains only small LoRA adapter matrices — 12M parameters (0.37%) out of 3.2B — making fine-tuning feasible on a single consumer GPU. The goal is to improve the model's ability to follow coding instructions and generate correct Python code.
 
 ## Hardware
 - **GPU:** NVIDIA GeForce RTX 3060 (12GB VRAM)
